@@ -29,7 +29,9 @@ function Whiteboard() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const previousStatesRef = useRef<ImageData[]>([]);
   const currentCanvasStateRef = useRef<ImageData | null>(null);
-  let shouldClearCanvas: boolean = false;
+
+  const shouldClearCanvasRef = useRef(false);
+  // let shouldClearCanvas: boolean = false;
   const router = useRouter();
 
   
@@ -130,15 +132,15 @@ function Whiteboard() {
     function drawLine(x0: number, y0: number, x1: number, y1: number, color: string, lineWidth: number, emit: boolean) {
       console.log('line width:', lineWidth);
       console.log('color:', color);
-      console.log("should Clear", shouldClearCanvas)
+      
       
       if (!context) {
         return;
       }
 
-      if (shouldClearCanvas) {
+      if (shouldClearCanvasRef.current) {
         context.clearRect(0, 0, canvas.width, canvas.height);
-        shouldClearCanvas = false; // reset the flag to false
+        shouldClearCanvasRef.current = false; // reset the flag to false
       }
       
       context.strokeStyle = color;
@@ -295,7 +297,7 @@ function Whiteboard() {
       socket.emit('clearCanvas');
     
       // Set the shouldClearCanvas flag to true
-      shouldClearCanvas = true;
+      shouldClearCanvasRef.current = true;
     }
     
     // Listen for the 'clearCanvas' event on the socket
