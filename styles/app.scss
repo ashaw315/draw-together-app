@@ -635,6 +635,9 @@ $options: 4;
         animation: fade-in-overlay 0.5s ease-out forwards;
         .modal {
             width: 35%;
+            @include bp(sm) {
+                width: 80%;
+            }
             height: auto;
             background-color: white;
             padding: 2rem;
