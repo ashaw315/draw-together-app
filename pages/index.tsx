@@ -54,14 +54,10 @@ function Whiteboard() {
     router.push('/gallery')
   };
 
-  console.log("helllo",fileId)
-
+  // Get colors //
   const colorsArray = ['black', 'crimson', 'aquamarine', 'purple', 'rebeccapurple', 
     'yellowgreen', 'wheat', 'springgreen', 'yellow', 'slategray', 'dodgerblue', 'orangered',
      'lightskyblue', 'deeppink', 'darkviolet', 'darkcyan', 'peru', 'tomato', 'turquoise', 'white']
-  // shuffle the array randomly
-  // colorsArray.sort(() => Math.random() - 0.5);
-  // get the first five elements from the shuffled array
   const colorDivs = colorsArray.map((color, index) => (
     <div 
       key={color} 
@@ -88,10 +84,7 @@ function Whiteboard() {
     const lineWidthSlider = document.getElementById('line-width-slider') as HTMLInputElement;
     const clearCanvasButton = document.getElementById('clear-canvas-button') as HTMLButtonElement;
     const undoButton = document.getElementById('undo-button') as HTMLButtonElement;
-    var context = canvas.getContext('2d');
-
-    
-    // console.log('UNDO LIST:', undoList);
+    const context = canvas.getContext('2d') as CanvasRenderingContext2D;
 
     const current: DrawingData = {
       x: 0,

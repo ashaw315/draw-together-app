@@ -46,7 +46,7 @@ export default async function uploadHandler(
           // const fileIds = files.map((file) => file.filename);
           // console.log("HITTING HERE")
           // return res.json({ fileIds });
-          const response = files.map((file) => {
+          const response = files.map((file: { filename: string; metadata: { name: string; title: string }; uploadDate: Date }) => {
             return {
                 fileId: file.filename,
                 name: file.metadata.name,
