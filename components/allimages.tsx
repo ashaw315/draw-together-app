@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface UploadedImage {
   fileId: string;
@@ -61,9 +62,6 @@ function Gallery() {
     };
   }, []);
 
-  console.log("IMAGES:",images)
-  // console.log("Gallery Images:",galleryImages)
-
   return (
     <div className="gallery">
       <Link href="/">←Back to the Lounge</Link>
@@ -75,7 +73,14 @@ function Gallery() {
         {images.map((image, index) => (
         <div className='image-container' key={index}>
             {isImageLoaded ? null : <div className='loader'></div>}
-            <img src={`/api/upload/${image.fileId}`} alt="Drawing" loading='lazy' onLoad={handleImageLoad} onClick={() => handleImageClick(image) }/>
+            <Image
+              src={`/api/upload/${image.fileId}`} 
+              alt="Drawing" loading='lazy' 
+              onLoad={handleImageLoad} 
+              onClick={() => handleImageClick(image) }
+              width={500}
+              height={500}
+              />
             <div className='image-info'>
               <p>{image.name ? (image.title ? `${image.title} by ${image.name}` : `${image.name} (Untitled)`) : (image.title ? `${image.title} (Anonymous)` : 'Untitled by Anonymous')}</p>
               <p>{formatDate(image.createdAt)}</p>
@@ -89,7 +94,7 @@ function Gallery() {
             <span className='close' onClick={closeModal}>&times;</span>
             {selectedImage && (
               <>
-                <img src={`/api/upload/${selectedImage.fileId}`} alt="Drawing" />
+                <Image src={`/api/upload/${selectedImage.fileId}`} alt="Drawing" width={500} height={500} />
                 <div className='image-info'>
                   <p>{selectedImage.name ? (selectedImage.title ? `${selectedImage.title} by ${selectedImage.name}` : `${selectedImage.name} (Untitled)`) : (selectedImage.title ? `${selectedImage.title} (Anonymous)` : 'Untitled by Anonymous')}</p>
                   <p>{formatDate(selectedImage.createdAt)}</p>
