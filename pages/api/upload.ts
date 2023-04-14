@@ -17,12 +17,12 @@ export default async function uploadHandler(
 
   if (req.method === 'POST') {
     try {
-      const { dataUrl } = req.body;
+      const { dataUrl, name, title } = req.body;
       const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
       const bufferStream = stream.Readable.from(buffer);
       const uploadStream = bucket.openUploadStream(uniqueFilename(), {
           chunkSize: 1024 * 1024,
-          metadata: { contentType: 'image/png' },
+          metadata: { contentType: 'image/png', name, title },
       });
       await new Promise<void>((resolve, reject) => {
         bufferStream.pipe(uploadStream)
@@ -38,11 +38,23 @@ export default async function uploadHandler(
   } else if (req.method === 'GET') {
     try {
         const fileId = req.query.fileId as string;
+        const name = req.query.name as string;
+        const title = req.query.title as string
         if (!fileId) {
           // Return a list of available file IDs
           const files = await bucket.find().toArray();
-          const fileIds = files.map((file) => file.filename);
-          return res.json({ fileIds });
+          // const fileIds = files.map((file) => file.filename);
+          // console.log("HITTING HERE")
+          // return res.json({ fileIds });
+          const response = files.map((file) => {
+            return {
+                fileId: file.filename,
+                name: file.metadata.name,
+                title: file.metadata.title,
+                createdAt: file.uploadDate,
+            };
+        });
+        return res.json(response);
         }
         const downloadStream = bucket.openDownloadStreamByName(fileId);
         downloadStream.on("error", () => {

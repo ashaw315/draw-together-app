@@ -8,6 +8,8 @@ import { useContext } from 'react'
 import { bucket } from '@/mongodb'
 import Gallery from '@/components/allimages'
 import Link from 'next/link'
+import Router, { useRouter } from 'next/router'
+import next from 'next'
 
 function Whiteboard() {
   const [socket, setSocket] = useState(io("http://localhost:4000",{
@@ -15,37 +17,58 @@ function Whiteboard() {
         }));
   const [fileId, setFileId] = useState('');
   const [undoList, setUndoList] = useState([]);
+  const [lineWidth, setLineWidth] = useState(25)
+  const [color, setColor] = useState('black')
+  const [selectedColorIndex, setSelectedColorIndex] = useState<number | null>(null);
+
+  const [show, setShow] = useState(false)
+  const [showCover, setShowCover] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [isOptMenuOpen, setIsOptMenuOpen] = useState(false);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const previousStatesRef = useRef<ImageData[]>([]);
   const currentCanvasStateRef = useRef<ImageData | null>(null);
   let shouldClearCanvas: boolean = false;
+  const router = useRouter();
 
   
   const handleUpload = async () => {
     const canvas = document.getElementById('my-canvas') as HTMLCanvasElement;
     const dataUrl = canvas.toDataURL('image/png');
     console.log(dataUrl)
+
+    const name = (document.getElementById('name-input') as HTMLInputElement).value;
+    const title = (document.getElementById('title-input') as HTMLInputElement).value;
+
     const img = new Image();
     img.src = dataUrl;
-    document.body.appendChild(img);
+    // document.body.appendChild(img);
     const response = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dataUrl }),
+      body: JSON.stringify({ dataUrl, name, title }),
     });
     const { fileId } = await response.json();
     setFileId(fileId);
+    router.push('/gallery')
   };
 
   console.log("helllo",fileId)
 
-  const colorsArray = ['crimson', 'aquamarine', 'purple', 'rebeccapurple', 
-    'yellowgreen', 'wheat', 'springgreen', 'yellow', 'slategray', 'slateblue', 'orangered', 'lightskyblue', 'deeppink', 'darkviolet', 'darkcyan']
+  const colorsArray = ['black', 'crimson', 'aquamarine', 'purple', 'rebeccapurple', 
+    'yellowgreen', 'wheat', 'springgreen', 'yellow', 'slategray', 'dodgerblue', 'orangered',
+     'lightskyblue', 'deeppink', 'darkviolet', 'darkcyan', 'peru', 'tomato', 'turquoise', 'white']
   // shuffle the array randomly
   // colorsArray.sort(() => Math.random() - 0.5);
   // get the first five elements from the shuffled array
   const colorDivs = colorsArray.map((color, index) => (
-    <div key={color} className={`color ${color}`} style={{ backgroundColor: color }} />
+    <div 
+      key={color} 
+      className={`color ${color} ${index === selectedColorIndex ? 'selected' : ''}`} 
+      style={{ backgroundColor: color }}
+      onClick={() => setSelectedColorIndex(index)}
+    />
   ));
 
 
@@ -88,6 +111,14 @@ function Whiteboard() {
     canvas.addEventListener('touchend', onMouseUp, false);
     canvas.addEventListener('touchcancel', onMouseUp, false);
     canvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
+
+    canvas.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+    });
+    
+    canvas.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+    });
 
     lineWidthSlider.addEventListener('input', onSliderUpdate);
     clearCanvasButton.addEventListener('click', clearCanvas);
@@ -206,27 +237,21 @@ function Whiteboard() {
     }
     drawing = false;
 
-      // // add new state to undoList
-      // const currentState = context.getImageData(0, 0, canvas.width, canvas.height);
-      // setUndoList(undoList => {
-      //   const newUndoList = [...undoList, currentState];
-      //   return newUndoList;
-      // });
+    let clientX = (e as MouseEvent).clientX;
+    let clientY = (e as MouseEvent).clientY;
+    
+    if (!clientX && (e as TouchEvent).changedTouches) {
+      clientX = (e as TouchEvent).changedTouches[0].clientX;
+    }
+    
+    if (!clientY && (e as TouchEvent).changedTouches) {
+      clientY = (e as TouchEvent).changedTouches[0].clientY;
+    }
+  
+    drawLine(current.x, current.y, clientX, clientY, current.color, current.lineWidth, true);
 
-    drawLine(current.x, current.y, (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX, 
-            (e as MouseEvent).clientY || (e as TouchEvent).touches[0].clientY, current.color, current.lineWidth, true);
-
-    // For storing each line on server
-    // const line = {
-    //   x1: current.x,
-    //   y1: current.y,
-    //   x2: (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX,
-    //   y2: (e as MouseEvent).clientY || (e as TouchEvent).touches[0].clientY,
-    //   color: current.color,
-    //   lineWidth: current.lineWidth,
-    //   };
-          
-    // socket.emit('addLineToUndoList', line);
+    // drawLine(current.x, current.y, (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX, 
+    //         (e as MouseEvent).clientY || (e as TouchEvent).touches[0].clientY, current.color, current.lineWidth, true);
   }
 
     function onMouseMove(e: MouseEvent | TouchEvent){
@@ -249,6 +274,7 @@ function Whiteboard() {
       const color = target.classList[1];
       current.color = color;
       console.log(current.color)
+      setColor(current.color)
     }
 
     function onSliderUpdate(event: Event): void {
@@ -256,7 +282,7 @@ function Whiteboard() {
       const lineWidth = parseFloat(target.value);
       current.lineWidth = lineWidth
       console.log(current.lineWidth)
-      // setLineWidth(current.lineWidth);
+      setLineWidth(current.lineWidth);
     }
 
     function clearCanvas() {
@@ -356,35 +382,125 @@ function Whiteboard() {
   //   handleUndo();
   // })
 
+  function toPNG() {
+    const canvas = canvasRef.current;
+    if(!canvas) {
+      return;
+    }
+    const link = document.createElement('a');
+    link.download = 'canvas.png';
+    canvas.toBlob(function(blob) {
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = 'canvas.png';
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }, 'image/png');
+  }
 
+  function toggleCover() {
+    setShowCover(!showCover);
+  }
 
+  function openModal() {
+    setShowModal(true);
+  }
+  function closeModal(){
+    setShowModal(false);
+  }
+  const handleToggleMenu = () => {
+    setIsOptMenuOpen(!isOptMenuOpen);
+  };
 
   return (
-  <div className="whiteboard-container">
-    <canvas className="whiteboard" id="my-canvas" ref={canvasRef}></canvas>
-    <div className="colors">
-      <div className='color black' style={{ backgroundColor: 'black' }}></div>
-      {colorDivs}
-      <div className='color white' style={{ backgroundColor: 'white' }}></div>
-      <label>Brush Width </label>
-      <input
-        id='line-width-slider'
-        type="range"
-        min="3"
-        max="100"
-      />
-      <div>
-        <button id='undo-button' onClick={handleUndo}>Undo</button>
-        <button id="clear-canvas-button">Clear Canvas</button>
-        <button onClick={handleUpload}>Save to Gallery</button>
-        {fileId && (
-          <img src={`/api/upload/${fileId}`} alt="Drawing" />
-        )}
+    <>
+    <div className={`cover ${showCover ? 'close' : 'open' }`} onClick={toggleCover}>
+      <div className='down-up-arrows'>
+        <h3>{showCover ? '↑' : '↓'}</h3>
+        <h3>{showCover ? '↑' : '↓'}</h3>
+        <h3>{showCover ? '↑' : '↓'}</h3>
       </div>
-      <Link href="/gallery">Gallery Page</Link>
+      <div className='cover-content'>
+        <h1>Scribble Lounge</h1>
+        <div className='cover-copy'>
+          <h3>Welcome to Scribble Lounge! The place where you can make amazing collaborative drawings with friends!</h3>
+          <h3>Connect with friends and make beautiful, unique drawings together. Simply send them a link to the site and you can start creating together in real-time.</h3>
+          <h3>Download and save your drawings to the gallery, so you can revisit them at any time. Plus, you can undo your last mark, which won’t register on your partner’s canvas, giving you the freedom to experiment and create something truly original together. And if you're not happy with your drawing, no sweat! Simply clear the canvas and start fresh.</h3>
+          <h3>Be sure to check out the gallery to see the amazing work of other artists. You'll be inspired by the creativity and imagination on display.</h3>
+          <h3>So what are you waiting for? Grab a friend and start making some amazing collaborative drawings together in the Scribble!</h3>
+        </div>
+      </div>
+    </div> 
+  <div className="whiteboard-container" style={{ height: '100%', width: '100%' }}>
+    <canvas className="whiteboard" id="my-canvas" ref={canvasRef} onClick={() => setShow(false)}></canvas>
+    <div id='main-container'>
+      <div id='menu-container-mobile'>     
+        <button className={`menu-toggle ${show ? `menu_active` : null }`} onClick={() => setShow(!show)} onKeyDown={() => setShow(!show)} tabIndex={0}>
+          <span className="line"></span>
+          <span className="line"></span>
+          <span className="line"></span>
+        </button>
+      </div>
     </div>
-    <Gallery />
+    
+    <div className={`nav-container-mobile ${show ? `menu_active` : null }`} >      
+      <div className='colors'>
+        {colorDivs}
+      </div>
+      <div id="line-width">
+          <div className='line-inputs'>
+            <input
+              id='line-width-slider'
+              type="range"
+              min="3"
+              max="100"
+              value={lineWidth}
+              onChange={(event) => setLineWidth(Number(event.target.value))}
+              style={{ backgroundColor: color }}
+            />
+            <output>{lineWidth}</output>
+          </div>
+          <label>Brush Width</label>
+        </div>
+    </div>
+    <div className='options-menu' onClick={handleToggleMenu}>Options
+      <div className='dropdown-menu'>
+        <button className='dropdown_item-1' id='undo-button' onClick={handleUndo}>Undo</button>
+        <button className='dropdown_item-2' id="clear-canvas-button">Clear Canvas</button>
+        <button className='dropdown_item-4' onClick={toPNG}>Download</button>
+      </div>
+    </div>
+    <div className='save-to-gallery'>
+      <button className='save-to-gallery-buttons' onClick={openModal}>Save</button>
+      {showModal && (
+        <div className='modal-overlay'>
+          <div className={`modal ${showModal ? 'active' : ''}`}>
+            <h1>Save to Gallery</h1>
+            <p>Share your collab or individual piece!</p>
+            <div className='nt-container'>
+              <input className='form-field' type="text" name='name' id='name-input' placeholder='name' />
+              <label htmlFor="name" className='form-label'>Name (optional)</label>
+            </div>
+            <div className='nt-container'>
+              <input type="text" id="title-input" className='form-field' name='title' placeholder='title'/>
+              <label htmlFor="title" className='form-label'>Title (optional)</label>
+            </div>
+            <button className='save-to-gallery-buttons' onClick={handleUpload}>Save to Gallery</button>
+            <button className='modal-close' onClick={closeModal}>X</button>
+          </div>
+        </div>
+      )}
+    </div>
+    <div className="gallery-link">
+      <Link href="/gallery">Gallery Page →</Link>
+    </div>
+    {/* <Gallery /> */}
   </div>
+  </>
   );
   }
   

@@ -10,7 +10,6 @@ function GalleryPage () {
 
     return (
         <div>
-            This is the gallery page
             <Gallery />
         </div>
     )
