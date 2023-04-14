@@ -130,8 +130,8 @@ function Whiteboard() {
     onResize();
 
     function drawLine(x0: number, y0: number, x1: number, y1: number, color: string, lineWidth: number, emit: boolean) {
-      console.log('line width:', lineWidth);
-      console.log('color:', color);
+      // console.log('line width:', lineWidth);
+      // console.log('color:', color);
       
       
       if (!context) {
@@ -268,7 +268,7 @@ function Whiteboard() {
       const target = e.target as HTMLElement;
       const color = target.classList[1];
       current.color = color;
-      console.log(current.color)
+      // console.log(current.color)
       setColor(current.color)
     }
 
@@ -276,7 +276,7 @@ function Whiteboard() {
       const target = event.target as HTMLInputElement;
       const lineWidth = parseFloat(target.value);
       current.lineWidth = lineWidth
-      console.log(current.lineWidth)
+      // console.log(current.lineWidth)
       setLineWidth(current.lineWidth);
     }
 
@@ -350,7 +350,7 @@ function Whiteboard() {
       canvas.height = window.innerHeight;
     }
       
-  }, []);
+  }, [socket]);
 
   function handleUndo(): void {
     const canvas = canvasRef.current;
@@ -369,8 +369,8 @@ function Whiteboard() {
 
       // socket.emit('undo', { previousCanvasState, currentCanvasState: currentCanvasStateRef.current });
     }
-    console.log("prev",previousStatesRef)
-    console.log('current', currentCanvasStateRef)
+    // console.log("prev",previousStatesRef)
+    // console.log('current', currentCanvasStateRef)
   }
 
   // socket.on('undo', () => {
