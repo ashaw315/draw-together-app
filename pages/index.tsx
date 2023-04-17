@@ -12,7 +12,7 @@ import Router, { useRouter } from 'next/router'
 import next from 'next'
 
 function Whiteboard() {
-  const [socket, setSocket] = useState(io("https://draw-together-app.vercel.app",{
+  const [socket, setSocket] = useState(io("https://draw-together-app.vercel.app:4000",{
             transports : ['websocket']
         }));
   const [fileId, setFileId] = useState('');
