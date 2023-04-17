@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "serv": "node server.js"
   },
   "dependencies": {
     "@types/mongodb": "^3.6.20",
