@@ -13,8 +13,8 @@ import next from 'next'
 
 function Whiteboard() {
   const [socket, setSocket] = useState(io("https://draw-together-app.vercel.app", {
-  secure: true,
-  transports: ["websocket"]
+  transports: ['websocket'],
+  path: '/api/server'
 }));
   const [fileId, setFileId] = useState('');
   const [undoList, setUndoList] = useState([]);
