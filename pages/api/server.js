@@ -31,7 +31,7 @@ function onClear(socket) {
 
 io.on('connection', onConnection);
 
-const server_port = process.env.PORT || 4000;
+const server_port = process.env.PORT || 3000;
 server.listen(server_port, () => {
   console.log("Started on : " + server_port);
 });
