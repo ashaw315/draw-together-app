@@ -1,12 +1,4 @@
-export {};
-import { MongoClient, GridFSBucket } from 'mongodb';
+import { client, database } from './database';
+import { bucket } from './bucket';
 
-const uri = process.env.MONGODB_URI!;
-const client = await MongoClient.connect(uri);
-
-const dbName = 'mydb';
-const database = client.db(dbName);
-
-const bucket = new GridFSBucket(database);
-
-export {client, database, bucket};
+export { client, database, bucket };

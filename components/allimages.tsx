@@ -73,13 +73,11 @@ function Gallery() {
         {images.map((image, index) => (
         <div className='image-container' key={index}>
             {isImageLoaded ? null : <div className='loader'></div>}
-            <Image
+            <img
               src={`/api/upload/${image.fileId}`} 
               alt="Drawing" loading='lazy' 
               onLoad={handleImageLoad} 
               onClick={() => handleImageClick(image) }
-              width={500}
-              height={500}
               />
             <div className='image-info'>
               <p>{image.name ? (image.title ? `${image.title} by ${image.name}` : `${image.name} (Untitled)`) : (image.title ? `${image.title} (Anonymous)` : 'Untitled by Anonymous')}</p>
@@ -94,7 +92,7 @@ function Gallery() {
             <span className='close' onClick={closeModal}>&times;</span>
             {selectedImage && (
               <>
-                <Image src={`/api/upload/${selectedImage.fileId}`} alt="Drawing" width={500} height={500} />
+                <img src={`/api/upload/${selectedImage.fileId}`} alt="Drawing"/>
                 <div className='image-info'>
                   <p>{selectedImage.name ? (selectedImage.title ? `${selectedImage.title} by ${selectedImage.name}` : `${selectedImage.name} (Untitled)`) : (selectedImage.title ? `${selectedImage.title} (Anonymous)` : 'Untitled by Anonymous')}</p>
                   <p>{formatDate(selectedImage.createdAt)}</p>
