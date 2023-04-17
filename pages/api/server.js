@@ -35,7 +35,7 @@ app.get('/api/server', (req, res) => {
     res.send('Socket server is running!');
   });
 
-const server_port = process.env.PORT || 4000;
+const server_port = process.env.PORT || 3000;
 server.listen(server_port, () => {
   console.log("Started on : " + server_port);
 });
