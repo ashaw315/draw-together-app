@@ -5,13 +5,14 @@ import { Inter } from 'next/font/google'
 import { io } from 'socket.io-client'
 import { useEffect, useState, useRef } from 'react'
 import { useContext } from 'react'
+// import { bucket } from '@/mongodb'
 import Gallery from '@/components/allimages'
 import Link from 'next/link'
 import Router, { useRouter } from 'next/router'
 import next from 'next'
 
 function Whiteboard() {
-  const [socket, setSocket] = useState(io("/api/server",{
+  const [socket, setSocket] = useState(io("https://draw-together-app.vercel.app",{
             transports : ['websocket']
         }));
   const [fileId, setFileId] = useState('');
