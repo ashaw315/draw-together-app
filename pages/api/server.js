@@ -4,11 +4,7 @@ import { Server } from 'socket.io';
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(httpServer, {
-    cors: {
-      origin: '*',
-    },
-  });
+const io = new Server(server);
 
 let undoList = [];
 
