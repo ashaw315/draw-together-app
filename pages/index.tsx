@@ -175,6 +175,8 @@ function Whiteboard() {
       var w = canvas.width;
       var h = canvas.height;
 
+      console.log(socket)
+
       socket.emit('drawing', {
         x0: x0 / w,
         y0: y0 / h,
