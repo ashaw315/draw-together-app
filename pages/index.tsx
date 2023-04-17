@@ -11,7 +11,7 @@ import Router, { useRouter } from 'next/router'
 import next from 'next'
 
 function Whiteboard() {
-  const [socket, setSocket] = useState(io("http://localhost:4000",{
+  const [socket, setSocket] = useState(io("https://draw-together-mvns2deqi-ashaw315.vercel.app/",{
             transports : ['websocket']
         }));
   const [fileId, setFileId] = useState('');
