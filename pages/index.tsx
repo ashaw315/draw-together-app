@@ -8,7 +8,6 @@ import { io } from 'socket.io-client'
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import Router, { useRouter } from 'next/router'
-import Pusher from 'pusher-js'
 
 // https://draw-together-app.vercel.app:4000 //
 
@@ -35,32 +34,6 @@ function Whiteboard() {
   const shouldClearCanvasRef = useRef(false);
   // let shouldClearCanvas: boolean = false;
   const router = useRouter();
-
-  const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY ?? '', {
-    cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER ?? '',
-  });
-  console.log(pusher)
-  const channel = pusher.subscribe('scribble-lounge');
-  channel.bind('new-line', function(data:{message:string}) {
-    console.log('Received message:', data.message);
-  });
-
-  interface PushData {
-    message: string;
-  }
-
-  function pushData(data: PushData) {
-    fetch('/api/pusher', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => res.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.error(err));
-  }
   
   const handleUpload = async () => {
     const canvas = document.getElementById('my-canvas') as HTMLCanvasElement;
@@ -273,7 +246,7 @@ function Whiteboard() {
     }
   
     drawLine(current.x, current.y, clientX, clientY, current.color, current.lineWidth, true);
-    pushData({ message: 'line drawn' });
+    
     // drawLine(current.x, current.y, (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX, 
     //         (e as MouseEvent).clientY || (e as TouchEvent).touches[0].clientY, current.color, current.lineWidth, true);
   }
