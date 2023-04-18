@@ -20,7 +20,6 @@ function Whiteboard() {
   const [lineWidth, setLineWidth] = useState(25)
   const [color, setColor] = useState('black')
   const [selectedColorIndex, setSelectedColorIndex] = useState<number | null>(null);
-
   const [show, setShow] = useState(false)
   const [showCover, setShowCover] = useState(false);
   const [showModal, setShowModal] = useState(false);
