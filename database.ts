@@ -1,7 +1,6 @@
 const mongoDB = require('mongodb');
 
 const uri = process.env.MONGODB_URI!;
-console.log("MONGODB!!!",uri)
 const client = await mongoDB.MongoClient.connect(uri);
 
 const dbName = 'mydb';
