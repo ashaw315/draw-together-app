@@ -1,2 +1,1 @@
-web: npm start
-worker: node pages/api/server.js
+web: node server.js
