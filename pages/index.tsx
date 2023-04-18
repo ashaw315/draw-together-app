@@ -13,7 +13,7 @@ import Router, { useRouter } from 'next/router'
 // https://hidden-hamlet-24259.herokuapp.com/
 
 function Whiteboard() {
-  const [socket, setSocket] = useState(io("localhost:4000",{
+  const [socket, setSocket] = useState(io("https://hidden-hamlet-24259.herokuapp.com",{
             transports : ['websocket']
         }));
   const [fileId, setFileId] = useState('');
