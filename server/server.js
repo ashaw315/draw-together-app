@@ -1,43 +1,39 @@
-import express from 'express';
-import http from 'http';
-import { Server } from 'socket.io';
-
+const express = require('express');
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
 let undoList = [];
 
-io.on('connection', (socket) => {
-  console.log('User Online');
-  onClear(socket);
-});
 
-function onConnection(socket) {
-  socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
-  console.log('something');
+io.on('connection', (socket)=> {
+    console.log('User Online');
+    onClear(socket);
+})
 
-  socket.on('addLineToUndoList', (line) => {
-    undoList.push(line);
-    console.log('LINE ADDED', line);
-    console.log(undoList.length);
-  });
-}
+function onConnection(socket){
+    socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+    console.log('something')
 
-function onClear(socket) {
-  socket.on('clearCanvas', (data) => socket.broadcast.emit('clearCanvas', data));
-  console.log("cleared");
-}
+    socket.on('addLineToUndoList', (line) => {
+      undoList.push(line);
+      console.log('LINE ADDED', line)
+      console.log(undoList.length)
+    })
+  }
 
-io.on('connection', onConnection);
+  function onClear(socket) {
+    socket.on('clearCanvas', (data) =>  socket.broadcast.emit('clearCanvas', data));
+      console.log("cleared");
+  }
+  
+  io.on('connection', onConnection);
 
-app.get('/api/server', (req, res) => {
+  app.get('/api/server', (req, res) => {
     res.send('Socket server is running!');
   });
 
-const server_port = process.env.PORT || 4000;
-server.listen(server_port, () => {
-  console.log("Started on : " + server_port);
-});
-
-export default app;
+var server_port = process.env.YOUR_PORT || process.env.PORT || 4000;
+http.listen(server_port, () => {
+  console.log("Started on : "+ server_port);
+})

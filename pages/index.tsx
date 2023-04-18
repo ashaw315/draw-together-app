@@ -10,9 +10,10 @@ import Link from 'next/link'
 import Router, { useRouter } from 'next/router'
 
 // https://draw-together-app.vercel.app:4000 //
+// https://hidden-hamlet-24259.herokuapp.com/
 
 function Whiteboard() {
-  const [socket, setSocket] = useState(io("https://hidden-hamlet-24259.herokuapp.com/",{
+  const [socket, setSocket] = useState(io("localhost:4000",{
             transports : ['websocket']
         }));
   const [fileId, setFileId] = useState('');
