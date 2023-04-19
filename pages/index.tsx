@@ -14,7 +14,7 @@ import Router, { useRouter } from 'next/router'
 // localhost:4000
 
 function Whiteboard() {
-  const [socket, setSocket] = useState(io("https://hidden-hamlet-24259.herokuapp.com",{
+  const [socket, setSocket] = useState(io("https://hidden-hamlet-24259.herokuapp.com/",{
             transports : ['websocket']
         }));
   const [fileId, setFileId] = useState('');
