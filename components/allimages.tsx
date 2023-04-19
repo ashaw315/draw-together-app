@@ -69,6 +69,8 @@ function Gallery() {
         <h1>Scribble Lounge</h1>
         <h2>Gallery</h2>
       </div>
+      <div className='gallery-images-container'>
+        {isImageLoaded ? null : <div className='loader-gallerly'>Loading Gallery...</div>}
       <div className='gallery-images'>
         {images.map((image, index) => (
         <div className='image-container' key={index}>
@@ -80,12 +82,13 @@ function Gallery() {
               onClick={() => handleImageClick(image) }
               fill
               />
-            <div className='image-info'>
-              <p>{image.name ? (image.title ? `${image.title} by ${image.name}` : `${image.name} (Untitled)`) : (image.title ? `${image.title} (Anonymous)` : 'Untitled by Anonymous')}</p>
+            <div className='image-info'> 
+              <p><span>{image.title ? image.title : 'Untitled'}</span> by <span>{image.name ? image.name : 'Anonymous'}</span></p>
               <p>{formatDate(image.createdAt)}</p>
             </div>
         </div>
         ))}
+      </div>
       </div>
       {showPaintModal && window.innerWidth > 768 && (
         <div className={`paint-modal`}>
@@ -95,7 +98,7 @@ function Gallery() {
               <>
                 <Image src={`/api/upload/${selectedImage.fileId}`} alt="Drawing" fill/>
                 <div className='image-info'>
-                  <p>{selectedImage.name ? (selectedImage.title ? `${selectedImage.title} by ${selectedImage.name}` : `${selectedImage.name} (Untitled)`) : (selectedImage.title ? `${selectedImage.title} (Anonymous)` : 'Untitled by Anonymous')}</p>
+                  <p><span>{selectedImage.title ? selectedImage.title : 'Untitled'}</span> by <span>{selectedImage.name ? selectedImage.name : 'Anonymous'}</span></p>
                   <p>{formatDate(selectedImage.createdAt)}</p>
                 </div>
               </>
