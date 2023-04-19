@@ -10,6 +10,7 @@
     "serv": "node server.js"
   },
   "dependencies": {
+    "@fontsource/bungee-shade": "^4.5.10",
     "@types/mongodb": "^3.6.20",
     "@types/node": "18.14.2",
     "@types/react": "18.0.28",
