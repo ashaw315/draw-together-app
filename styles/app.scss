@@ -552,7 +552,13 @@ $options: 4;
                 margin: 0;
                 padding: 10px;
                 color: rgb(0, 0, 0);
-                font-size: 14px;
+                font-size: 1.2vw;
+                @include bp(smd) {
+                    font-size: 2vw;
+                }
+                @include bp(sm) {
+                    font-size: 1.2;
+                }
                 p {
                     margin: 0;
                 }
