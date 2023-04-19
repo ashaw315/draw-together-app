@@ -70,9 +70,9 @@ function Gallery() {
         <h2>Gallery</h2>
       </div>
       <div className='gallery-images-container'>
-        {isImageLoaded ? null : <div className='loader-gallerly'>Loading Gallery...</div>}
+        {isImageLoaded ? null : <div className='loader-gallery'>Loading Gallery...</div>}
       <div className='gallery-images'>
-        {images.map((image, index) => (
+        {images.slice().reverse().map((image, index) => (
         <div className='image-container' key={index}>
             {isImageLoaded ? null : <div className='loader'></div>}
             <Image
