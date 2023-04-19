@@ -33,7 +33,11 @@ function onConnection(socket){
     res.send('Socket server is running!');
   });
 
-var server_port = process.env.YOUR_PORT || process.env.PORT || 4000;
-http.listen(server_port, () => {
+var server_port = process.env.PORT || 3000;
+// http.listen(server_port, () => {
+//   console.log("Started on : "+ server_port);
+// })
+
+io.listen(server_port, () => {
   console.log("Started on : "+ server_port);
 })
