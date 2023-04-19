@@ -11,6 +11,7 @@ import Router, { useRouter } from 'next/router'
 
 // https://draw-together-app.vercel.app:4000 //
 // https://hidden-hamlet-24259.herokuapp.com/
+// localhost:4000
 
 function Whiteboard() {
   const [socket, setSocket] = useState(io("https://hidden-hamlet-24259.herokuapp.com",{
