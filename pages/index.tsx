@@ -425,10 +425,10 @@ function Whiteboard() {
         <h1>Scribble Lounge</h1>
         <div className='cover-copy'>
           <h3>Welcome to Scribble Lounge! The place where you can make amazing collaborative drawings with friends!</h3>
-          <h3>Connect with friends and make beautiful, unique drawings together. Simply send them a link to the site and you can start creating together in real-time.</h3>
+          <h3>Simply send your buddy the link and you can start creating together in real-time.</h3>
           <h3>Download and save your drawings to the gallery, so you can revisit them at any time. Plus, you can undo your last mark, which won&apos;t register on your partner&apos;s canvas, giving you the freedom to experiment and create something truly original together. And if you&apos;re not happy with your drawing, no sweat! Simply clear the canvas and start fresh.</h3>
-          <h3>Be sure to check out the gallery to see the amazing work of other artists. You&apos;ll be inspired by the creativity and imagination on display.</h3>
-          <h3>So what are you waiting for? Grab a friend and start making some amazing collaborative drawings together in the Scribble!</h3>
+          <h3>Check out the gallery to view fantastic works of art. You&apos;ll be inspired by the creativity and imagination on display.</h3>
+          <h3>So what are you waiting for? Grab a friend and start making some amazing collaborative drawings together in the Scribble Lounge!</h3>
         </div>
       </div>
     </div> 
