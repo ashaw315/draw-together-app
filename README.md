@@ -1,40 +1,92 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Draw Together
 
-## Getting Started
+A real-time collaborative drawing app. Multiple people can draw on the same canvas simultaneously by sharing a link. Finished drawings can be saved to a public gallery backed by MongoDB.
 
-First, run the development server:
+**Live:** [draw-together-app.vercel.app](https://draw-together-app.vercel.app)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+## How it works
+
+The app is split into two processes:
+
+- **Next.js app** — serves the canvas UI, gallery pages, and API routes for saving/retrieving drawings. Deployed on Vercel.
+- **Socket.IO server** — a lightweight Express server that relays drawing events between connected clients. Deployed separately (Heroku).
+
+When you draw, each mouse/touch move emits a stroke event (start point, end point, color, line width) over WebSocket. The server broadcasts it to every other connected client. Coordinates are normalized to a 0–1 scale so drawings render consistently across different screen sizes.
+
+There is no server-side canvas state. Each client maintains its own canvas independently. This means new clients joining mid-session see a blank canvas — the app is designed for synchronous collaboration where everyone starts together.
+
+Drawings are saved as PNG snapshots. The canvas is exported to a data URL, converted to a buffer, and stored in MongoDB via GridFS (chunked binary storage). The gallery retrieves images by streaming them from GridFS through a Next.js API route.
+
+## Tech stack
+
+- Next.js 13 (Pages Router)
+- React 18
+- TypeScript
+- Socket.IO (client + standalone server)
+- MongoDB with GridFS
+- Canvas API
+- SCSS
+- Vercel (frontend) + Heroku (WebSocket server)
+
+## Running locally
+
+### Prerequisites
+
+- Node.js 19+
+- A MongoDB instance (local or Atlas)
+
+### Setup
+
+1. Clone the repo:
+   ```
+   git clone https://github.com/ashaw315/draw-together-app.git
+   cd draw-together-app
+   ```
+
+2. Install dependencies for both the Next.js app and the socket server:
+   ```
+   npm install
+   cd server && npm install && cd ..
+   ```
+
+3. Create `.env.local` in the project root:
+   ```
+   MONGODB_URI=your_mongodb_connection_string
+   ```
+
+4. Update the socket server URL in `pages/index.tsx` (line 17) to point to `localhost:4000` instead of the Heroku URL.
+
+5. Start both processes:
+   ```
+   # Terminal 1 — socket server
+   cd server && npm start
+
+   # Terminal 2 — Next.js dev server
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000).
+
+## Project structure
+
+```
+pages/
+  index.tsx          # Main canvas/drawing page
+  gallery.tsx        # Gallery page
+  api/
+    upload.ts        # Save and retrieve drawings (GridFS)
+    upload/[fileId].ts
+server/
+  server.js          # Standalone Socket.IO relay server
+database.ts          # MongoDB client connection
+bucket.ts            # GridFS bucket initialization
+mongodb.ts           # Aggregated DB exports
+styles/
+  app.scss           # Main styles
+  globals.css        # Canvas and input resets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deployment
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-# draw-together-app
-# draw-together-app
+- **Frontend:** Deployed on Vercel. No special config needed beyond setting `MONGODB_URI` as an environment variable.
+- **Socket server:** Deployed as a separate Node.js process. Needs its own hosting (currently Heroku). The client-side socket URL in `pages/index.tsx` must match the deployed server address.

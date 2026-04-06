@@ -22,7 +22,6 @@ function Gallery() {
   const handleImageClick = (image: UploadedImage) => {
     setSelectedImage(image)
     setShowPaintModal(true);
-    console.log('anything')
   }
 
   function closeModal(){

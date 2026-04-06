@@ -1,20 +1,13 @@
-// require('dotenv').config();
-
 import Head from 'next/head'
-// import Image from 'next/image'
-import { Inter } from 'next/font/google'
-// import styles from '@/styles/Home.module.css'
 import { io } from 'socket.io-client'
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
-import Router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 
-// https://draw-together-app.vercel.app:4000 //
-// https://hidden-hamlet-24259.herokuapp.com/
-// localhost:4000
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000';
 
 function Whiteboard() {
-  const [socket, setSocket] = useState(io("https://hidden-hamlet-24259.herokuapp.com/",{
+  const [socket, setSocket] = useState(io(SOCKET_URL, {
             transports : ['websocket']
         }));
   const [fileId, setFileId] = useState('');
@@ -32,20 +25,14 @@ function Whiteboard() {
   const currentCanvasStateRef = useRef<ImageData | null>(null);
 
   const shouldClearCanvasRef = useRef(false);
-  // let shouldClearCanvas: boolean = false;
   const router = useRouter();
   
   const handleUpload = async () => {
     const canvas = document.getElementById('my-canvas') as HTMLCanvasElement;
     const dataUrl = canvas.toDataURL('image/png');
-    console.log(dataUrl)
-
     const name = (document.getElementById('name-input') as HTMLInputElement).value;
     const title = (document.getElementById('title-input') as HTMLInputElement).value;
 
-    const img = new Image();
-    img.src = dataUrl;
-    // document.body.appendChild(img);
     const response = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -81,7 +68,6 @@ function Whiteboard() {
   useEffect(() => {
 
     var canvas = document.getElementsByClassName('whiteboard')[0] as HTMLCanvasElement;
-    // const canvas = canvasRef.current;
     var colors = document.getElementsByClassName('color');
     const lineWidthSlider = document.getElementById('line-width-slider') as HTMLInputElement;
     const clearCanvasButton = document.getElementById('clear-canvas-button') as HTMLButtonElement;
@@ -123,17 +109,12 @@ function Whiteboard() {
       color.addEventListener('click', onColorUpdate);
     }
 
-    // socket.on('canvasData', sendCanvas);
     socket.on('drawing', onDrawingEvent);
 
     window.addEventListener('resize', onResize, false);
     onResize();
 
     function drawLine(x0: number, y0: number, x1: number, y1: number, color: string, lineWidth: number, emit: boolean) {
-      // console.log('line width:', lineWidth);
-      // console.log('color:', color);
-      
-      
       if (!context) {
         return;
       }
@@ -168,14 +149,11 @@ function Whiteboard() {
       context.lineTo(x1 + 4, y1 + 4);
       context.stroke();
 
-      // context.stroke();
       context.closePath();
 
       if (!emit) { return; }
       var w = canvas.width;
       var h = canvas.height;
-
-      console.log(socket)
 
       socket.emit('drawing', {
         x0: x0 / w,
@@ -186,30 +164,6 @@ function Whiteboard() {
         lineWidth: lineWidth
       });
 
-      // if (emit) { 
-      //   var w = canvas.width;
-      //   var h = canvas.height;
-      //   socket.emit('drawing', {
-      //     x0: x0 / w,
-      //     y0: y0 / h,
-      //     x1: x1 / w,
-      //     y1: y1 / h,
-      //     color: color,
-      //     lineWidth: lineWidth
-      //   });
-
-      //   // Add line to undo list
-      //   const line = {
-      //     x0: x0 / w,
-      //     y0: y0 / h,
-      //     x1: x1 / w,
-      //     y1: y1 / h,
-      //     color: color,
-      //     lineWidth: lineWidth
-      //   };
-      //   socket.emit('addLineToUndoList', line);
-      // }
-      
     }
 
     function onMouseDown(e: MouseEvent | TouchEvent) {
@@ -246,9 +200,6 @@ function Whiteboard() {
     }
   
     drawLine(current.x, current.y, clientX, clientY, current.color, current.lineWidth, true);
-    
-    // drawLine(current.x, current.y, (e as MouseEvent).clientX || (e as TouchEvent).touches[0].clientX, 
-    //         (e as MouseEvent).clientY || (e as TouchEvent).touches[0].clientY, current.color, current.lineWidth, true);
   }
 
     function onMouseMove(e: MouseEvent | TouchEvent){
@@ -270,7 +221,6 @@ function Whiteboard() {
       const target = e.target as HTMLElement;
       const color = target.classList[1];
       current.color = color;
-      // console.log(current.color)
       setColor(current.color)
     }
 
@@ -278,7 +228,6 @@ function Whiteboard() {
       const target = event.target as HTMLInputElement;
       const lineWidth = parseFloat(target.value);
       current.lineWidth = lineWidth
-      // console.log(current.lineWidth)
       setLineWidth(current.lineWidth);
     }
 
@@ -337,13 +286,12 @@ function Whiteboard() {
       y1: number;
       color: string;
       lineWidth: number;
-      boolean: true,
     }
 
     function onDrawingEvent(data: DrawingEventData): void {
       var w = canvas.width;
       var h = canvas.height;
-      drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, data.lineWidth, data.boolean);
+      drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, data.lineWidth, false);
     }
 
     // make the canvas fill its parent
@@ -369,15 +317,8 @@ function Whiteboard() {
       // Update the current canvas state
       currentCanvasStateRef.current = context.getImageData(0, 0, canvas.width, canvas.height);
 
-      // socket.emit('undo', { previousCanvasState, currentCanvasState: currentCanvasStateRef.current });
     }
-    // console.log("prev",previousStatesRef)
-    // console.log('current', currentCanvasStateRef)
   }
-
-  // socket.on('undo', () => {
-  //   handleUndo();
-  // })
 
   function toPNG() {
     const canvas = canvasRef.current;
@@ -495,7 +436,6 @@ function Whiteboard() {
     <div className="gallery-link">
       <Link href="/gallery">Gallery Page →</Link>
     </div>
-    {/* <Gallery /> */}
   </div>
   </>
   );

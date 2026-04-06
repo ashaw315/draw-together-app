@@ -32,7 +32,6 @@ export default async function uploadHandler(
       const fileId = uploadStream.id.toString();
       res.status(200).json({ fileId });
     } catch (error) {
-      console.log(error);
       res.status(500).json({ message: 'Internal server error' });
     }
   } else if (req.method === 'GET') {
@@ -43,9 +42,6 @@ export default async function uploadHandler(
         if (!fileId) {
           // Return a list of available file IDs
           const files = await bucket.find().toArray();
-          // const fileIds = files.map((file) => file.filename);
-          // console.log("HITTING HERE")
-          // return res.json({ fileIds });
           const response = files.map((file: { filename: string; metadata: { name: string; title: string }; uploadDate: Date }) => {
             return {
                 fileId: file.filename,
@@ -63,7 +59,6 @@ export default async function uploadHandler(
         res.setHeader("content-type", "image/png");
         downloadStream.pipe(res);
     } catch (error) {
-      console.log(error);
       res.status(404).json({ message: 'Image not found' });
     }
   } else {
